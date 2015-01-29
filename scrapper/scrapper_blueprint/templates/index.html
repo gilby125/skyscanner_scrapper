@@ -1,0 +1,85 @@
+<!doctype html>
+
+<head>
+<!-- First let's include the Twitter Bootstrap -->
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+
+<!-- This is the source where I'm getting the calendar widget from -->
+<meta charset="utf-8">
+  <link rel="stylesheet" href="//code.jquery.com/ui/1.11.2/themes/smoothness/jquery-ui.css">
+  <script src="//code.jquery.com/jquery-1.10.2.js"></script>
+  <script src="//code.jquery.com/ui/1.11.2/jquery-ui.js"></script>
+  <script>
+  $(function() {
+    $( "#outbound" ).datepicker({dateFormat: "yy-mm-dd"});
+    $( "#inbound" ).datepicker({dateFormat: "yy-mm-dd"});
+  });
+  </script>
+
+</head>
+
+<body>
+{% if message %}
+    <p>{{ message }}</p>
+{% endif %}
+<form method="POST" action="/">
+    {{ form.market.label }} {{ form.market }}
+    {{ form.currency.label }} {{ form.currency }}<br />
+    {{ form.flight_from.label }} {{ form.flight_from }}
+    {{ form.flight_to.label }} {{ form.flight_to }}<br />
+    {{ form.outbound_date.label }} {{ form.outbound_date }}
+    {{ form.inbound_date.label }} {{ form.inbound_date }}<br />
+    {{ form.adults.label }} {{ form.adults }}
+    {{ form.children.label }} {{ form.children }}
+    {{ form.infants.label }} {{ form.infants }}
+    <br />
+    <input type="submit" value="Go">
+</form>
+
+
+{% if itineraries %}
+    <table border='0'>
+    {% for itinerary in itineraries %}
+        <th colspan='5'>Outbound</th>
+        <tr>
+            <td>From: </td><td>{{ places[legs[itinerary['OutboundLegId']]['OriginStation']]['Name'] }} </td>
+            <td>Departure: </td><td>{{ legs[itinerary['OutboundLegId']]['Departure'] }}</td>
+        </tr>
+        <tr>
+            <td>To:</td><td>{{ places[legs[itinerary['OutboundLegId']]['DestinationStation']]['Name'] }} </td>
+            <td>Arrival: </td><td>{{ legs[itinerary['OutboundLegId']]['Arrival'] }}</td>
+        </tr>
+        <tr>
+            <td>Stops: </td><td>{{ legs[itinerary['OutboundLegId']]['Stops']|length }} </td>
+        </tr>
+    
+        {% if 'InboundLegId' in itinerary %}
+            <!-- A return date is not mandatory -->
+            <th colspan='5'>Inbound</th>
+            <tr>
+                <td>From: </td><td>{{ places[legs[itinerary['InboundLegId']]['OriginStation']]['Name'] }} </td>
+                <td>Departure: </td><td>{{ legs[itinerary['InboundLegId']]['Departure'] }}</td>
+            </tr>
+            <tr>
+                <td>To:</td><td>{{ places[legs[itinerary['InboundLegId']]['DestinationStation']]['Name'] }} </td>
+                <td>Arrival: </td><td>{{ legs[itinerary['InboundLegId']]['Arrival'] }}</td>
+            </tr>
+        {% endif %}
+        <tr>
+            {% if 'InboundLegId' in itinerary %}
+                <td>Stops: </td><td>{{ legs[itinerary['InboundLegId']]['Stops']|length }} </td>
+            {% endif %}
+            <td>{{ currency['Symbol'] }} {{ itinerary['PricingOptions'][0]['Price'] }}</td>
+            <td><a href="{{ itinerary['PricingOptions'][0]['DeeplinkUrl'] }}">Buy now</a></td>
+        </tr>
+    
+        <tr><td colspan='5'><hr></td></tr>
+    {% endfor %}
+    </table>
+{% endif %}
+
+</body>
